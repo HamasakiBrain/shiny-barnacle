@@ -1,0 +1,83 @@
+name: market-api
+x-app: &app
+  build: .
+  image: market-api-php:local
+  working_dir: /var/www/html
+  volumes:
+    - .:/var/www/html
+    - vendor:/var/www/html/vendor
+  env_file: .env
+  environment:
+    DB_HOST: mysql
+    DB_PORT: 3306
+    REDIS_HOST: redis
+  networks: [market]
+services:
+  app:
+    <<: *app
+    depends_on:
+      mysql: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/app-ready"]
+      interval: 5s
+      timeout: 3s
+      retries: 60
+  nginx:
+    image: nginx:1.28-alpine
+    ports: ["127.0.0.1:${APP_PORT:-8080}:80"]
+    volumes:
+      - .:/var/www/html:ro
+      - ./docker/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app: {condition: service_healthy}
+    networks: [market]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://127.0.0.1/up"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-market}
+      MYSQL_USER: ${DB_USERNAME:-market}
+      MYSQL_PASSWORD: ${DB_PASSWORD:?Generate .env using scripts/setup-env.php}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Generate .env using scripts/setup-env.php}
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./docker/mysql-init.sh:/docker-entrypoint-initdb.d/01-testing.sh:ro
+    networks: [market]
+    healthcheck:
+      test: ["CMD-SHELL", 'MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h 127.0.0.1 -u "$$MYSQL_USER" "$$MYSQL_DATABASE" -e "SELECT 1"']
+      interval: 5s
+      timeout: 5s
+      retries: 40
+  redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: [redis:/data]
+    networks: [market]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+  queue:
+    <<: *app
+    command: ["php", "artisan", "queue:work", "redis", "--sleep=1", "--tries=3", "--timeout=60"]
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      REDIS_HOST: redis
+      SKIP_BOOTSTRAP: "1"
+    depends_on:
+      app: {condition: service_healthy}
+    restart: unless-stopped
+    stop_grace_period: 70s
+networks:
+  market:
+volumes:
+  vendor:
+  mysql:
+  redis:

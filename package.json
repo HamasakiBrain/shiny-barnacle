@@ -1,0 +1,9 @@
+{
+  "private": true,
+  "scripts": {
+    "docs:assets": "node scripts/copy-swagger.mjs"
+  },
+  "devDependencies": {
+    "swagger-ui-dist": "5.34.1"
+  }
+}

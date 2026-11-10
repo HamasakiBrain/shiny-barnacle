@@ -1,0 +1,6064 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Market API",
+    "version": "1.0.0",
+    "description": "Portfolio e-commerce backend. Money is integer USD cents. Send Accept: application/json and Content-Type: application/json. External payments are not supported."
+  },
+  "servers": [
+    {
+      "url": "/api/v1",
+      "description": "Current host"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication"
+    },
+    {
+      "name": "Catalog"
+    },
+    {
+      "name": "Cart"
+    },
+    {
+      "name": "Orders"
+    },
+    {
+      "name": "Payments"
+    },
+    {
+      "name": "Reviews"
+    },
+    {
+      "name": "Favorites"
+    },
+    {
+      "name": "Notifications"
+    },
+    {
+      "name": "Administration"
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "operationId": "post_auth_register",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register a Customer",
+        "description": "Role cannot be supplied. Tokens expire after 24 hours.",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Auth"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "user": {
+                      "id": 1,
+                      "name": "Demo Customer",
+                      "email": "customer@example.test",
+                      "role": "customer"
+                    },
+                    "token": "1|example-token-replace-with-login-response",
+                    "token_type": "Bearer"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterInput"
+              },
+              "example": {
+                "name": "Demo Customer",
+                "email": "customer@example.test",
+                "password": "ReplaceWithYourLocalDemoPassword",
+                "password_confirmation": "ReplaceWithYourLocalDemoPassword"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "post_auth_login",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Create a bearer token",
+        "description": "",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Auth"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "user": {
+                      "id": 1,
+                      "name": "Demo Customer",
+                      "email": "customer@example.test",
+                      "role": "customer"
+                    },
+                    "token": "1|example-token-replace-with-login-response",
+                    "token_type": "Bearer"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginInput"
+              },
+              "example": {
+                "email": "customer@example.test",
+                "password": "ReplaceWithYourLocalDemoPassword"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/me": {
+      "get": {
+        "operationId": "get_auth_me",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Current account",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Demo Customer",
+                    "email": "customer@example.test",
+                    "role": "customer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "operationId": "post_auth_logout",
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Revoke current token",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "operationId": "get_categories",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "List active categories",
+        "description": "",
+        "security": [],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Category"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Office",
+                      "slug": "office",
+                      "is_active": true
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "operationId": "get_products",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Search active products",
+        "description": "",
+        "security": [],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Page number; default 1."
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "lamp",
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "category_id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1
+            }
+          },
+          {
+            "name": "min_price",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "max_price",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 100000,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "id",
+              "enum": [
+                "id",
+                "price",
+                "name"
+              ]
+            }
+          },
+          {
+            "name": "direction",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "example": "asc",
+              "enum": [
+                "asc",
+                "desc"
+              ]
+            }
+          },
+          {
+            "name": "per_page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 20,
+              "minimum": 1,
+              "maximum": 100
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Product"
+                      }
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "first": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/products?page=1"
+                        },
+                        "last": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/products?page=1"
+                        },
+                        "prev": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        },
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        }
+                      },
+                      "required": [
+                        "first",
+                        "last",
+                        "prev",
+                        "next"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "name": "Desk Lamp",
+                      "slug": "desk-lamp",
+                      "sku": "LAMP-001",
+                      "description": "Adjustable desk lamp.",
+                      "price": 2500,
+                      "currency": "USD",
+                      "stock": 50,
+                      "is_active": true,
+                      "category": {
+                        "id": 1,
+                        "name": "Office",
+                        "slug": "office",
+                        "is_active": true
+                      },
+                      "average_rating": 4.5
+                    }
+                  ],
+                  "links": {
+                    "first": "http://localhost:8080/api/v1/products?page=1",
+                    "last": "http://localhost:8080/api/v1/products?page=1",
+                    "prev": null,
+                    "next": null
+                  },
+                  "meta": {
+                    "current_page": 1,
+                    "last_page": 1,
+                    "per_page": 20,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{product}": {
+      "get": {
+        "operationId": "get_products_product",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "Product details",
+        "description": "",
+        "security": [],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Desk Lamp",
+                    "slug": "desk-lamp",
+                    "sku": "LAMP-001",
+                    "description": "Adjustable desk lamp.",
+                    "price": 2500,
+                    "currency": "USD",
+                    "stock": 50,
+                    "is_active": true,
+                    "category": {
+                      "id": 1,
+                      "name": "Office",
+                      "slug": "office",
+                      "is_active": true
+                    },
+                    "average_rating": 4.5
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart": {
+      "get": {
+        "operationId": "get_cart",
+        "tags": [
+          "Cart"
+        ],
+        "summary": "View your cart",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CartItem"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "quantity": 2,
+                      "product": {
+                        "id": 1,
+                        "name": "Desk Lamp",
+                        "slug": "desk-lamp",
+                        "sku": "LAMP-001",
+                        "description": "Adjustable desk lamp.",
+                        "price": 2500,
+                        "currency": "USD",
+                        "stock": 50,
+                        "is_active": true,
+                        "category": {
+                          "id": 1,
+                          "name": "Office",
+                          "slug": "office",
+                          "is_active": true
+                        },
+                        "average_rating": 4.5
+                      },
+                      "subtotal": 5000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_cart",
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Clear your cart",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/items": {
+      "put": {
+        "operationId": "put_cart_items",
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Set absolute product quantity",
+        "description": "Replaces quantity, does not increment. Cart prices are current, stock is reserved only at checkout.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/CartItem"
+                      }
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "quantity": 2,
+                      "product": {
+                        "id": 1,
+                        "name": "Desk Lamp",
+                        "slug": "desk-lamp",
+                        "sku": "LAMP-001",
+                        "description": "Adjustable desk lamp.",
+                        "price": 2500,
+                        "currency": "USD",
+                        "stock": 50,
+                        "is_active": true,
+                        "category": {
+                          "id": 1,
+                          "name": "Office",
+                          "slug": "office",
+                          "is_active": true
+                        },
+                        "average_rating": 4.5
+                      },
+                      "subtotal": 5000
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartInput"
+              },
+              "example": {
+                "product_id": 1,
+                "quantity": 2
+              }
+            }
+          }
+        }
+      }
+    },
+    "/cart/items/{product}": {
+      "delete": {
+        "operationId": "delete_cart_items_product",
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Remove your cart item",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders": {
+      "get": {
+        "operationId": "get_orders",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "List your orders",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Page number; default 1."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "first": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/orders?page=1"
+                        },
+                        "last": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/orders?page=1"
+                        },
+                        "prev": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        },
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        }
+                      },
+                      "required": [
+                        "first",
+                        "last",
+                        "prev",
+                        "next"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "status": "pending",
+                      "total": 5000,
+                      "currency": "USD",
+                      "shipping_address": {
+                        "name": "Demo Customer",
+                        "line1": "1 Main Street",
+                        "city": "Boston",
+                        "postal_code": "02101",
+                        "country": "US"
+                      },
+                      "items": [
+                        {
+                          "product_id": 1,
+                          "name": "Desk Lamp",
+                          "sku": "LAMP-001",
+                          "unit_price": 2500,
+                          "quantity": 2,
+                          "subtotal": 5000
+                        }
+                      ],
+                      "payment": {
+                        "method": "cod",
+                        "status": "pending",
+                        "amount": 5000,
+                        "paid_at": null
+                      },
+                      "created_at": "2026-11-10T12:00:00+00:00"
+                    }
+                  ],
+                  "links": {
+                    "first": "http://localhost:8080/api/v1/orders?page=1",
+                    "last": "http://localhost:8080/api/v1/orders?page=1",
+                    "prev": null,
+                    "next": null
+                  },
+                  "meta": {
+                    "current_page": 1,
+                    "last_page": 1,
+                    "per_page": 20,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_orders",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Checkout cart",
+        "description": "Locks stock and snapshots prices. Same idempotency key and body returns the existing order (201), even after the cart is cleared. Different body with same key: 409. Prices, totals and user IDs are server-controlled.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "status": "pending",
+                    "total": 5000,
+                    "currency": "USD",
+                    "shipping_address": {
+                      "name": "Demo Customer",
+                      "line1": "1 Main Street",
+                      "city": "Boston",
+                      "postal_code": "02101",
+                      "country": "US"
+                    },
+                    "items": [
+                      {
+                        "product_id": 1,
+                        "name": "Desk Lamp",
+                        "sku": "LAMP-001",
+                        "unit_price": 2500,
+                        "quantity": 2,
+                        "subtotal": 5000
+                      }
+                    ],
+                    "payment": {
+                      "method": "cod",
+                      "status": "pending",
+                      "amount": 5000,
+                      "paid_at": null
+                    },
+                    "created_at": "2026-11-10T12:00:00+00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutInput"
+              },
+              "example": {
+                "idempotency_key": "606386a3-16e2-4124-8e20-d34f377085cc",
+                "payment_method": "cod",
+                "shipping_address": {
+                  "name": "Demo Customer",
+                  "line1": "1 Main Street",
+                  "city": "Boston",
+                  "postal_code": "02101",
+                  "country": "US"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order}": {
+      "get": {
+        "operationId": "get_orders_order",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Read an order",
+        "description": "Owner or Admin only.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "status": "pending",
+                    "total": 5000,
+                    "currency": "USD",
+                    "shipping_address": {
+                      "name": "Demo Customer",
+                      "line1": "1 Main Street",
+                      "city": "Boston",
+                      "postal_code": "02101",
+                      "country": "US"
+                    },
+                    "items": [
+                      {
+                        "product_id": 1,
+                        "name": "Desk Lamp",
+                        "sku": "LAMP-001",
+                        "unit_price": 2500,
+                        "quantity": 2,
+                        "subtotal": 5000
+                      }
+                    ],
+                    "payment": {
+                      "method": "cod",
+                      "status": "pending",
+                      "amount": 5000,
+                      "paid_at": null
+                    },
+                    "created_at": "2026-11-10T12:00:00+00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order}/cancel": {
+      "post": {
+        "operationId": "post_orders_order_cancel",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "Cancel an order",
+        "description": "Customer: pending only. Admin: pending or processing. Restores stock once. Repeated cancellation succeeds. Paid mock payment becomes refunded.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "status": "pending",
+                    "total": 5000,
+                    "currency": "USD",
+                    "shipping_address": {
+                      "name": "Demo Customer",
+                      "line1": "1 Main Street",
+                      "city": "Boston",
+                      "postal_code": "02101",
+                      "country": "US"
+                    },
+                    "items": [
+                      {
+                        "product_id": 1,
+                        "name": "Desk Lamp",
+                        "sku": "LAMP-001",
+                        "unit_price": 2500,
+                        "quantity": 2,
+                        "subtotal": 5000
+                      }
+                    ],
+                    "payment": {
+                      "method": "cod",
+                      "status": "pending",
+                      "amount": 5000,
+                      "paid_at": null
+                    },
+                    "created_at": "2026-11-10T12:00:00+00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/orders/{order}/payments/mock": {
+      "post": {
+        "operationId": "post_orders_order_payments_mock",
+        "tags": [
+          "Payments"
+        ],
+        "summary": "Simulate payment result",
+        "description": "Owner only. Mock method only. Failure leaves a pending order retryable; success is idempotent. No real money is processed.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "status": "pending",
+                    "total": 5000,
+                    "currency": "USD",
+                    "shipping_address": {
+                      "name": "Demo Customer",
+                      "line1": "1 Main Street",
+                      "city": "Boston",
+                      "postal_code": "02101",
+                      "country": "US"
+                    },
+                    "items": [
+                      {
+                        "product_id": 1,
+                        "name": "Desk Lamp",
+                        "sku": "LAMP-001",
+                        "unit_price": 2500,
+                        "quantity": 2,
+                        "subtotal": 5000
+                      }
+                    ],
+                    "payment": {
+                      "method": "cod",
+                      "status": "pending",
+                      "amount": 5000,
+                      "paid_at": null
+                    },
+                    "created_at": "2026-11-10T12:00:00+00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MockInput"
+              },
+              "example": {
+                "outcome": "success"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{product}/reviews": {
+      "get": {
+        "operationId": "get_products_product_reviews",
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Public product reviews",
+        "description": "",
+        "security": [],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Page number; default 1."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Review"
+                      }
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "first": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/products/{product}/reviews?page=1"
+                        },
+                        "last": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/products/{product}/reviews?page=1"
+                        },
+                        "prev": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        },
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        }
+                      },
+                      "required": [
+                        "first",
+                        "last",
+                        "prev",
+                        "next"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "product_id": 1,
+                      "rating": 5,
+                      "body": "Works well.",
+                      "author": {
+                        "id": 1,
+                        "name": "Demo Customer"
+                      },
+                      "created_at": "2026-11-10T12:00:00+00:00"
+                    }
+                  ],
+                  "links": {
+                    "first": "http://localhost:8080/api/v1/products/{product}/reviews?page=1",
+                    "last": "http://localhost:8080/api/v1/products/{product}/reviews?page=1",
+                    "prev": null,
+                    "next": null
+                  },
+                  "meta": {
+                    "current_page": 1,
+                    "last_page": 1,
+                    "per_page": 20,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/products/{product}/review": {
+      "put": {
+        "operationId": "put_products_product_review",
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Create or replace your review",
+        "description": "Requires a delivered purchase. One review per product/customer.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Review"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "product_id": 1,
+                    "rating": 5,
+                    "body": "Works well.",
+                    "author": {
+                      "id": 1,
+                      "name": "Demo Customer"
+                    },
+                    "created_at": "2026-11-10T12:00:00+00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReviewInput"
+              },
+              "example": {
+                "rating": 5,
+                "body": "Works well."
+              }
+            }
+          }
+        }
+      }
+    },
+    "/reviews/{review}": {
+      "delete": {
+        "operationId": "delete_reviews_review",
+        "tags": [
+          "Reviews"
+        ],
+        "summary": "Delete review",
+        "description": "Author or Admin only.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "review",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favorites": {
+      "get": {
+        "operationId": "get_favorites",
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "List your favorites",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Page number; default 1."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Favorite"
+                      }
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "first": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/favorites?page=1"
+                        },
+                        "last": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/favorites?page=1"
+                        },
+                        "prev": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        },
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        }
+                      },
+                      "required": [
+                        "first",
+                        "last",
+                        "prev",
+                        "next"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "product": {
+                        "id": 1,
+                        "name": "Desk Lamp",
+                        "slug": "desk-lamp",
+                        "sku": "LAMP-001",
+                        "description": "Adjustable desk lamp.",
+                        "price": 2500,
+                        "currency": "USD",
+                        "stock": 50,
+                        "is_active": true,
+                        "category": {
+                          "id": 1,
+                          "name": "Office",
+                          "slug": "office",
+                          "is_active": true
+                        },
+                        "average_rating": 4.5
+                      }
+                    }
+                  ],
+                  "links": {
+                    "first": "http://localhost:8080/api/v1/favorites?page=1",
+                    "last": "http://localhost:8080/api/v1/favorites?page=1",
+                    "prev": null,
+                    "next": null
+                  },
+                  "meta": {
+                    "current_page": 1,
+                    "last_page": 1,
+                    "per_page": 20,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/favorites/{product}": {
+      "put": {
+        "operationId": "put_favorites_product",
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "Save favorite idempotently",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_favorites_product",
+        "tags": [
+          "Favorites"
+        ],
+        "summary": "Remove favorite idempotently",
+        "description": "",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/notifications": {
+      "get": {
+        "operationId": "get_notifications",
+        "tags": [
+          "Notifications"
+        ],
+        "summary": "List your database notifications",
+        "description": "Order confirmation arrives asynchronously through the Redis worker.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Page number; default 1."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Notification"
+                      }
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "first": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/notifications?page=1"
+                        },
+                        "last": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/notifications?page=1"
+                        },
+                        "prev": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        },
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        }
+                      },
+                      "required": [
+                        "first",
+                        "last",
+                        "prev",
+                        "next"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "d6995800-82d8-5801-94e6-996f341c9e57",
+                      "data": {
+                        "order_id": 1,
+                        "total": 5000,
+                        "currency": "USD",
+                        "message": "Your order has been placed."
+                      },
+                      "read_at": null,
+                      "created_at": "2026-11-10T12:00:00+00:00"
+                    }
+                  ],
+                  "links": {
+                    "first": "http://localhost:8080/api/v1/notifications?page=1",
+                    "last": "http://localhost:8080/api/v1/notifications?page=1",
+                    "prev": null,
+                    "next": null
+                  },
+                  "meta": {
+                    "current_page": 1,
+                    "last_page": 1,
+                    "per_page": 20,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/products": {
+      "post": {
+        "operationId": "post_admin_products",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Create product",
+        "description": "Admin role required. ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Desk Lamp",
+                    "slug": "desk-lamp",
+                    "sku": "LAMP-001",
+                    "description": "Adjustable desk lamp.",
+                    "price": 2500,
+                    "currency": "USD",
+                    "stock": 50,
+                    "is_active": true,
+                    "category": {
+                      "id": 1,
+                      "name": "Office",
+                      "slug": "office",
+                      "is_active": true
+                    },
+                    "average_rating": 4.5
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductInput"
+              },
+              "example": {
+                "category_id": 1,
+                "name": "Desk Lamp",
+                "slug": "desk-lamp",
+                "sku": "LAMP-001",
+                "description": "Adjustable desk lamp.",
+                "price": 2500,
+                "stock": 50,
+                "is_active": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/products/{product}": {
+      "patch": {
+        "operationId": "patch_admin_products_product",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Update product",
+        "description": "Admin role required. ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Product"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Desk Lamp",
+                    "slug": "desk-lamp",
+                    "sku": "LAMP-001",
+                    "description": "Adjustable desk lamp.",
+                    "price": 2500,
+                    "currency": "USD",
+                    "stock": 50,
+                    "is_active": true,
+                    "category": {
+                      "id": 1,
+                      "name": "Office",
+                      "slug": "office",
+                      "is_active": true
+                    },
+                    "average_rating": 4.5
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProductUpdate"
+              },
+              "example": {
+                "category_id": 1,
+                "name": "Desk Lamp",
+                "slug": "desk-lamp",
+                "sku": "LAMP-001",
+                "description": "Adjustable desk lamp.",
+                "price": 2500,
+                "stock": 50,
+                "is_active": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_admin_products_product",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Deactivate product",
+        "description": "Admin role required. Soft deactivation preserves order history. PATCH is_active=true to reactivate.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "product",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories": {
+      "post": {
+        "operationId": "post_admin_categories",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Create category",
+        "description": "Admin role required. ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Office",
+                    "slug": "office",
+                    "is_active": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryInput"
+              },
+              "example": {
+                "name": "Office",
+                "slug": "office",
+                "is_active": true
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/categories/{category}": {
+      "patch": {
+        "operationId": "patch_admin_categories_category",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Update category",
+        "description": "Admin role required. ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Category"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "name": "Office",
+                    "slug": "office",
+                    "is_active": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CategoryUpdate"
+              },
+              "example": {
+                "name": "Office",
+                "slug": "office",
+                "is_active": true
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_admin_categories_category",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Deactivate category",
+        "description": "Admin role required. Soft deactivation preserves order history. PATCH is_active=true to reactivate.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "category",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content."
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders": {
+      "get": {
+        "operationId": "get_admin_orders",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "List all orders",
+        "description": "Admin role required. ",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Page number; default 1."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Order"
+                      }
+                    },
+                    "links": {
+                      "type": "object",
+                      "properties": {
+                        "first": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/admin/orders?page=1"
+                        },
+                        "last": {
+                          "type": "string",
+                          "example": "http://localhost:8080/api/v1/admin/orders?page=1"
+                        },
+                        "prev": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        },
+                        "next": {
+                          "type": "string",
+                          "nullable": true,
+                          "example": null
+                        }
+                      },
+                      "required": [
+                        "first",
+                        "last",
+                        "prev",
+                        "next"
+                      ]
+                    },
+                    "meta": {
+                      "type": "object",
+                      "properties": {
+                        "current_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "last_page": {
+                          "type": "integer",
+                          "example": 1
+                        },
+                        "per_page": {
+                          "type": "integer",
+                          "example": 20
+                        },
+                        "total": {
+                          "type": "integer",
+                          "example": 1
+                        }
+                      },
+                      "required": [
+                        "current_page",
+                        "last_page",
+                        "per_page",
+                        "total"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": 1,
+                      "status": "pending",
+                      "total": 5000,
+                      "currency": "USD",
+                      "shipping_address": {
+                        "name": "Demo Customer",
+                        "line1": "1 Main Street",
+                        "city": "Boston",
+                        "postal_code": "02101",
+                        "country": "US"
+                      },
+                      "items": [
+                        {
+                          "product_id": 1,
+                          "name": "Desk Lamp",
+                          "sku": "LAMP-001",
+                          "unit_price": 2500,
+                          "quantity": 2,
+                          "subtotal": 5000
+                        }
+                      ],
+                      "payment": {
+                        "method": "cod",
+                        "status": "pending",
+                        "amount": 5000,
+                        "paid_at": null
+                      },
+                      "created_at": "2026-11-10T12:00:00+00:00"
+                    }
+                  ],
+                  "links": {
+                    "first": "http://localhost:8080/api/v1/admin/orders?page=1",
+                    "last": "http://localhost:8080/api/v1/admin/orders?page=1",
+                    "prev": null,
+                    "next": null
+                  },
+                  "meta": {
+                    "current_page": 1,
+                    "last_page": 1,
+                    "per_page": 20,
+                    "total": 1
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/admin/orders/{order}/status": {
+      "patch": {
+        "operationId": "patch_admin_orders_order_status",
+        "tags": [
+          "Administration"
+        ],
+        "summary": "Transition order state",
+        "description": "Admin role required. pending -> processing -> shipped -> delivered; pending/processing -> cancelled. Mock must be paid before processing. COD settles on delivery. Repeating the current status is idempotent.",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "order",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "example": 1,
+              "minimum": 1
+            },
+            "description": "Numeric resource ID."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/Order"
+                    }
+                  },
+                  "required": [
+                    "data"
+                  ]
+                },
+                "example": {
+                  "data": {
+                    "id": 1,
+                    "status": "pending",
+                    "total": 5000,
+                    "currency": "USD",
+                    "shipping_address": {
+                      "name": "Demo Customer",
+                      "line1": "1 Main Street",
+                      "city": "Boston",
+                      "postal_code": "02101",
+                      "country": "US"
+                    },
+                    "items": [
+                      {
+                        "product_id": 1,
+                        "name": "Desk Lamp",
+                        "sku": "LAMP-001",
+                        "unit_price": 2500,
+                        "quantity": 2,
+                        "subtotal": 5000
+                      }
+                    ],
+                    "payment": {
+                      "method": "cod",
+                      "status": "pending",
+                      "amount": 5000,
+                      "paid_at": null
+                    },
+                    "created_at": "2026-11-10T12:00:00+00:00"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing, expired or revoked bearer token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Missing, expired or revoked bearer token."
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Permission denied.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Permission denied."
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Resource not found or inactive.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Resource not found or inactive."
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Business conflict: stock, state, purchase requirement or idempotency mismatch.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Business conflict: stock, state, purchase requirement or idempotency mismatch."
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Invalid request parameters or body.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                "example": {
+                  "message": "The given data was invalid.",
+                  "errors": {
+                    "email": [
+                      "The email field is required."
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Rate limit exceeded.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Rate limit exceeded."
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Unexpected server error.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "message": "Unexpected server error."
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StatusInput"
+              },
+              "example": {
+                "status": "pending"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Laravel Sanctum token from register/login. Expires after 24 hours."
+      }
+    },
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Demo Customer",
+            "maxLength": 100
+          },
+          "line1": {
+            "type": "string",
+            "example": "1 Main Street",
+            "maxLength": 255
+          },
+          "city": {
+            "type": "string",
+            "example": "Boston",
+            "maxLength": 100
+          },
+          "postal_code": {
+            "type": "string",
+            "example": "02101",
+            "maxLength": 20
+          },
+          "country": {
+            "type": "string",
+            "example": "US",
+            "pattern": "^[A-Z]{2}$"
+          }
+        },
+        "required": [
+          "name",
+          "line1",
+          "city",
+          "postal_code",
+          "country"
+        ]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Demo Customer"
+          },
+          "email": {
+            "type": "string",
+            "example": "customer@example.test",
+            "format": "email"
+          },
+          "role": {
+            "type": "string",
+            "example": "customer",
+            "enum": [
+              "customer",
+              "admin"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email",
+          "role"
+        ]
+      },
+      "Category": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Office"
+          },
+          "slug": {
+            "type": "string",
+            "example": "office"
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "is_active"
+        ]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Desk Lamp"
+          },
+          "slug": {
+            "type": "string",
+            "example": "desk-lamp"
+          },
+          "sku": {
+            "type": "string",
+            "example": "LAMP-001"
+          },
+          "description": {
+            "type": "string",
+            "example": "Adjustable desk lamp."
+          },
+          "price": {
+            "type": "integer",
+            "example": 2500,
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "example": "USD",
+            "enum": [
+              "USD"
+            ]
+          },
+          "stock": {
+            "type": "integer",
+            "example": 50,
+            "minimum": 0
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          },
+          "category": {
+            "$ref": "#/components/schemas/Category"
+          },
+          "average_rating": {
+            "type": "number",
+            "nullable": true,
+            "example": 4.5
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "sku",
+          "description",
+          "price",
+          "currency",
+          "stock",
+          "is_active",
+          "category",
+          "average_rating"
+        ]
+      },
+      "CartItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          },
+          "subtotal": {
+            "type": "integer",
+            "example": 5000
+          }
+        },
+        "required": [
+          "id",
+          "quantity",
+          "product",
+          "subtotal"
+        ]
+      },
+      "OrderItem": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Desk Lamp"
+          },
+          "sku": {
+            "type": "string",
+            "example": "LAMP-001"
+          },
+          "unit_price": {
+            "type": "integer",
+            "example": 2500
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2
+          },
+          "subtotal": {
+            "type": "integer",
+            "example": 5000
+          }
+        },
+        "required": [
+          "product_id",
+          "name",
+          "sku",
+          "unit_price",
+          "quantity",
+          "subtotal"
+        ]
+      },
+      "Payment": {
+        "type": "object",
+        "properties": {
+          "method": {
+            "type": "string",
+            "example": "cod",
+            "enum": [
+              "cod",
+              "mock"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "example": "pending",
+            "enum": [
+              "pending",
+              "paid",
+              "failed",
+              "refunded",
+              "cancelled"
+            ]
+          },
+          "amount": {
+            "type": "integer",
+            "example": 5000
+          },
+          "paid_at": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "example": null
+          }
+        },
+        "required": [
+          "method",
+          "status",
+          "amount",
+          "paid_at"
+        ]
+      },
+      "Order": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "status": {
+            "type": "string",
+            "example": "pending",
+            "enum": [
+              "pending",
+              "processing",
+              "shipped",
+              "delivered",
+              "cancelled"
+            ]
+          },
+          "total": {
+            "type": "integer",
+            "example": 5000
+          },
+          "currency": {
+            "type": "string",
+            "example": "USD",
+            "enum": [
+              "USD"
+            ]
+          },
+          "shipping_address": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            }
+          },
+          "payment": {
+            "$ref": "#/components/schemas/Payment"
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-11-10T12:00:00+00:00",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "total",
+          "currency",
+          "shipping_address",
+          "items",
+          "payment",
+          "created_at"
+        ]
+      },
+      "Review": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "product_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "rating": {
+            "type": "integer",
+            "example": 5,
+            "minimum": 1,
+            "maximum": 5
+          },
+          "body": {
+            "type": "string",
+            "example": "Works well."
+          },
+          "author": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "integer",
+                "example": 1
+              },
+              "name": {
+                "type": "string",
+                "example": "Demo Customer"
+              }
+            },
+            "required": [
+              "id",
+              "name"
+            ]
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-11-10T12:00:00+00:00",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "product_id",
+          "rating",
+          "body",
+          "author",
+          "created_at"
+        ]
+      },
+      "Favorite": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product"
+          }
+        },
+        "required": [
+          "id",
+          "product"
+        ]
+      },
+      "Notification": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "d6995800-82d8-5801-94e6-996f341c9e57",
+            "format": "uuid"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "order_id": {
+                "type": "integer",
+                "example": 1
+              },
+              "total": {
+                "type": "integer",
+                "example": 5000
+              },
+              "currency": {
+                "type": "string",
+                "example": "USD",
+                "enum": [
+                  "USD"
+                ]
+              },
+              "message": {
+                "type": "string",
+                "example": "Your order has been placed."
+              }
+            },
+            "required": [
+              "order_id",
+              "total",
+              "currency",
+              "message"
+            ]
+          },
+          "read_at": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "created_at": {
+            "type": "string",
+            "example": "2026-11-10T12:00:00+00:00",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "data",
+          "read_at",
+          "created_at"
+        ]
+      },
+      "Auth": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          },
+          "token": {
+            "type": "string",
+            "example": "1|example-token-replace-with-login-response"
+          },
+          "token_type": {
+            "type": "string",
+            "example": "Bearer",
+            "enum": [
+              "Bearer"
+            ]
+          }
+        },
+        "required": [
+          "user",
+          "token",
+          "token_type"
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "This action is unauthorized."
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "ValidationError": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "example": "The given data was invalid."
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": {
+              "email": [
+                "The email field is required."
+              ]
+            }
+          }
+        },
+        "required": [
+          "message",
+          "errors"
+        ]
+      },
+      "RegisterInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Demo Customer",
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "example": "customer@example.test",
+            "format": "email",
+            "maxLength": 255
+          },
+          "password": {
+            "type": "string",
+            "example": "ReplaceWithYourLocalDemoPassword",
+            "minLength": 12,
+            "maxLength": 128
+          },
+          "password_confirmation": {
+            "type": "string",
+            "example": "ReplaceWithYourLocalDemoPassword",
+            "minLength": 12,
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "password_confirmation"
+        ]
+      },
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "customer@example.test",
+            "format": "email",
+            "maxLength": 255
+          },
+          "password": {
+            "type": "string",
+            "example": "ReplaceWithYourLocalDemoPassword",
+            "maxLength": 128
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "CategoryInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Office",
+            "maxLength": 255
+          },
+          "slug": {
+            "type": "string",
+            "example": "office",
+            "maxLength": 255,
+            "description": "Letters, numbers, dashes and underscores; must be unique."
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "name",
+          "slug"
+        ]
+      },
+      "ProductInput": {
+        "type": "object",
+        "properties": {
+          "category_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Desk Lamp",
+            "maxLength": 255
+          },
+          "slug": {
+            "type": "string",
+            "example": "desk-lamp",
+            "maxLength": 255,
+            "description": "Letters, numbers, dashes and underscores; must be unique."
+          },
+          "sku": {
+            "type": "string",
+            "example": "LAMP-001",
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "example": "Adjustable desk lamp.",
+            "maxLength": 10000
+          },
+          "price": {
+            "type": "integer",
+            "example": 2500,
+            "minimum": 1,
+            "maximum": 100000000
+          },
+          "stock": {
+            "type": "integer",
+            "example": 50,
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        },
+        "required": [
+          "category_id",
+          "name",
+          "slug",
+          "sku",
+          "description",
+          "price",
+          "stock"
+        ]
+      },
+      "CategoryUpdate": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Office",
+            "maxLength": 255
+          },
+          "slug": {
+            "type": "string",
+            "example": "office",
+            "maxLength": 255,
+            "description": "Letters, numbers, dashes and underscores; must be unique."
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "ProductUpdate": {
+        "type": "object",
+        "properties": {
+          "category_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "Desk Lamp",
+            "maxLength": 255
+          },
+          "slug": {
+            "type": "string",
+            "example": "desk-lamp",
+            "maxLength": 255,
+            "description": "Letters, numbers, dashes and underscores; must be unique."
+          },
+          "sku": {
+            "type": "string",
+            "example": "LAMP-001",
+            "maxLength": 255
+          },
+          "description": {
+            "type": "string",
+            "example": "Adjustable desk lamp.",
+            "maxLength": 10000
+          },
+          "price": {
+            "type": "integer",
+            "example": 2500,
+            "minimum": 1,
+            "maximum": 100000000
+          },
+          "stock": {
+            "type": "integer",
+            "example": 50,
+            "minimum": 0,
+            "maximum": 1000000
+          },
+          "is_active": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "CartInput": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "integer",
+            "example": 1
+          },
+          "quantity": {
+            "type": "integer",
+            "example": 2,
+            "minimum": 1,
+            "maximum": 100
+          }
+        },
+        "required": [
+          "product_id",
+          "quantity"
+        ]
+      },
+      "CheckoutInput": {
+        "type": "object",
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "example": "606386a3-16e2-4124-8e20-d34f377085cc",
+            "format": "uuid"
+          },
+          "payment_method": {
+            "type": "string",
+            "example": "cod",
+            "enum": [
+              "cod",
+              "mock"
+            ]
+          },
+          "shipping_address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        },
+        "required": [
+          "idempotency_key",
+          "payment_method",
+          "shipping_address"
+        ]
+      },
+      "StatusInput": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "pending",
+            "enum": [
+              "pending",
+              "processing",
+              "shipped",
+              "delivered",
+              "cancelled"
+            ]
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "MockInput": {
+        "type": "object",
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "example": "success",
+            "enum": [
+              "success",
+              "failure"
+            ]
+          }
+        },
+        "required": [
+          "outcome"
+        ]
+      },
+      "ReviewInput": {
+        "type": "object",
+        "properties": {
+          "rating": {
+            "type": "integer",
+            "example": 5,
+            "minimum": 1,
+            "maximum": 5
+          },
+          "body": {
+            "type": "string",
+            "example": "Works well.",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "rating",
+          "body"
+        ]
+      }
+    }
+  }
+}
